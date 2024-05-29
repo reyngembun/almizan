@@ -1,0 +1,145 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+header {
+    background-color: #f8f8f8;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.login-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.login-btn:hover {
+    background-color: #0056b3;
+}
+.logo {
+    width: 50px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+.login-btn {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+main {
+    padding: 20px 0;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 20px;
+    font-size: 24px;
+}
+
+h3 {
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+p {
+    text-align: left;
+    margin: 10px 0;
+}
+
+.large-logo {
+    width: 200px;
+    margin: 20px 0;
+}
+
+.divisions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.division {
+    background-color: #e0f7fa;
+    padding: 20px;
+    margin: 10px;
+    width: 28%;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: left;
+}
+
+.division h4 {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+footer {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+
+footer .container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+footer .contact,
+footer .map,
+footer .social-media {
+    width: 30%;
+    text-align: center;
+}
+
+footer .social-media ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+footer .social-media ul li {
+    display: inline;
+    margin: 0 10px;
+}
+
+footer .social-media ul li a {
+    text-decoration: none;
+    color: #fff;
+}

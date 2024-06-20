@@ -5,8 +5,8 @@
                 <ul>
                     <li><a href="index.php">Home</a></li>
                     <li><a href="profile.php">Profile</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="#footer">FAQ</a></li>
+                    <li><a href="#footer">Contact</a></li>
                 </ul>
             </nav>
             <a class="login-btn" href="login.html">Login</a>

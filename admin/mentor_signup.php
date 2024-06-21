@@ -11,7 +11,7 @@ if (!isUserLoggedIn()) {
     header("Location: ../login.html");
     exit();
 }
-include("../db.php");
+include '../db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["signup"])) {
     $nama = $_POST['nama'];

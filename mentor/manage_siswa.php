@@ -1,16 +1,20 @@
 <?php
+session_start();
 include '../db.php';
 
-// Handle filtering
-$divisionFilter = '';
-if (isset($_GET['division_id']) && $_GET['division_id'] != 'all') {
-    $divisionFilter = ' AND students.divisi_id = ' . $_GET['division_id'];
-}
+// Ambil `divisi_id` dari mentor yang login
+$loggedInUserId = $_SESSION['user_id'];
+$result = $conn->query("SELECT divisi_id FROM mentors WHERE id = $loggedInUserId");
+$loggedInUserDivision = $result->fetch_assoc()['divisi_id'];
 
-// Fetch divisions for the filter dropdown
-$divisions = $conn->query("SELECT id, nama_divisi FROM divisions");
+// Ambil nama divisi dari `divisi_id` mentor yang login
+$divisionNameResult = $conn->query("SELECT nama_divisi FROM divisions WHERE id = $loggedInUserDivision");
+$divisionName = $divisionNameResult->fetch_assoc()['nama_divisi'];
 
-// Fetch students data
+// Filter berdasarkan `divisi_id` mentor yang login
+$divisionFilter = " AND students.divisi_id = $loggedInUserDivision";
+
+// Ambil data siswa
 $students = $conn->query("
     SELECT 
         users.id, 
@@ -39,21 +43,10 @@ $conn->close();
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php include 'sidebar.html'; ?>
+    <?php include 'sidebar.php'; ?>
     <div class="main-content">
         <h2>Manage Siswa</h2>
-        <form method="get" class="filter-form">
-            <label for="division_id">Filter Divisi:</label>
-            <select name="division_id" id="division_id">
-                <option value="all">All</option>
-                <?php while ($division = $divisions->fetch_assoc()): ?>
-                    <option value="<?= $division['id'] ?>" <?= isset($_GET['division_id']) && $_GET['division_id'] == $division['id'] ? 'selected' : '' ?>>
-                        <?= $division['nama_divisi'] ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
-            <button type="submit">Filter</button>
-        </form>
+        <h4>Divisi: <?= $divisionName ?></h4>
         <table>
             <thead>
                 <tr>
@@ -83,7 +76,7 @@ $conn->close();
                         <td><?= $row['nama_divisi'] ?></td>
                         <td>
                             <a href="edit_siswa.php?id=<?= $row['id'] ?>">Edit</a>
-                            <a href="delete_siswa.php?id=<?= $row['id'] ?>" onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
+                            <a href="delete_siswa.php?id=<?= $row['id'] ?>" onclick="return confirm('Apakah Anda yakin ingin menghapus siswa ini?')">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>

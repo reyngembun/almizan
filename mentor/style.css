@@ -202,44 +202,7 @@ h3 {
     margin-top: 0;
 }
 
-.filter-form {
-    margin-bottom: 20px;
-}
-
-.filter-form label {
-    margin-right: 10px;
-}
-
-.filter-form select {
-    padding: 5px;
-    margin-right: 10px;
-}
-
-.filter-form button {
-    padding: 5px 10px;
-    background-color: #2C3E50;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.filter-form button:hover {
-    background-color: #34495E;
-}
-
-.form-container {
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-h3 {
-    margin-top: 0;
-}
-
-input[type="text"], textarea, select {
+input[type="text"], input[type="password"], textarea, select {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -292,4 +255,23 @@ button:hover {
 
 .download-link:hover, .edit-link:hover, .delete-link:hover {
     background-color: #34495E;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.message.success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.message.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
 }

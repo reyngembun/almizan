@@ -24,6 +24,7 @@ $conn->close();
         <li><a href="manage_siswa.php">Manage Siswa</a></li>
         <li><a href="manage_attendance.php">Manage Presensi</a></li>
         <li><a href="manage_materi.php">Manage Materi</a></li>
+        <li><a href="reset_pass.php">Reset Password</a></li>
         <li><a href="logout.php">Logout</a></li>
     </ul>
 </div>

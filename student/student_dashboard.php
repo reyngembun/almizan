@@ -26,7 +26,7 @@ $conn->close();
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php include 'sidebar.html'; ?>
+    <?php include 'sidebar.php'; ?>
     <div class="main-content">
         <h2>Dashboard Siswa</h2>
         

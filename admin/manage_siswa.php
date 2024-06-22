@@ -7,6 +7,21 @@ if (isset($_GET['division_id']) && $_GET['division_id'] != 'all') {
     $divisionFilter = ' AND students.divisi_id = ' . $_GET['division_id'];
 }
 
+// Handle searching
+$searchFilter = '';
+if (isset($_GET['search']) && !empty($_GET['search'])) {
+    $search = $conn->real_escape_string($_GET['search']);
+    $searchFilter = " AND (
+        users.username LIKE '%$search%' OR
+        students.nama LIKE '%$search%' OR
+        students.nim LIKE '%$search%' OR
+        students.no_telephone LIKE '%$search%' OR
+        students.alamat LIKE '%$search%' OR
+        students.jenis_kelamin LIKE '%$search%' OR
+        students.instansi LIKE '%$search%'
+    )";
+}
+
 // Fetch divisions for the filter dropdown
 $divisions = $conn->query("SELECT id, nama_divisi FROM divisions");
 
@@ -26,11 +41,12 @@ $students = $conn->query("
     FROM users
     JOIN students ON users.id = students.id
     JOIN divisions ON students.divisi_id = divisions.id
-    WHERE users.role = 'siswa' $divisionFilter
+    WHERE users.role = 'siswa' $divisionFilter $searchFilter
 ");
 
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,6 +59,8 @@ $conn->close();
     <div class="main-content">
         <h2>Manage Siswa</h2>
         <form method="get" class="filter-form">
+            <label for="search">Search:</label>
+            <input type="text" name="search" id="search" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" placeholder="Search...">
             <label for="division_id">Filter Divisi:</label>
             <select name="division_id" id="division_id">
                 <option value="all">All</option>
@@ -52,7 +70,7 @@ $conn->close();
                     </option>
                 <?php endwhile; ?>
             </select>
-            <button type="submit">Filter</button>
+            <button type="submit">Search</button>
         </form>
         <table>
             <thead>

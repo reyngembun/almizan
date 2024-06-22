@@ -309,3 +309,23 @@ button:hover {
     background-color: #f8d7da;
     border-color: #f5c6cb;
 }
+.profile-container {
+    background-color: #FFFFFF;
+    border: 1px solid #DDD;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-container h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #2C3E50;
+    margin-bottom: 15px;
+}
+
+.profile-container p {
+    margin: 5px 0;
+    color: #487e82;
+}

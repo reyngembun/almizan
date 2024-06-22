@@ -2,6 +2,8 @@
 include '../db.php';
 session_start();
 
+
+
 // Fungsi untuk memeriksa apakah pengguna sudah login
 function isUserLoggedIn() {
     return isset($_SESSION['user_id']);

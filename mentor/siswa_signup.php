@@ -9,7 +9,7 @@ function isUserLoggedIn() {
 
 // Jika pengguna belum login, redirect ke halaman login
 if (!isUserLoggedIn()) {
-    header("Location: ../login.php");
+    header("Location: login.php");
     exit();
 }
 

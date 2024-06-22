@@ -1,74 +1,66 @@
 <?php
-session_start();
 include '../db.php';
+session_start();
 
-// Fungsi untuk memeriksa apakah pengguna sudah login
-function isUserLoggedIn() {
-    return isset($_SESSION['user_id']);
-}
-
-// Jika pengguna belum login, redirect ke halaman login
-if (!isUserLoggedIn()) {
-    header("Location: ../login.php");
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../index.php");
     exit();
 }
 
 // Ambil divisi_id dari mentor yang login
 $loggedInUserId = $_SESSION['user_id'];
-$result = $conn->query("SELECT divisi_id FROM mentors WHERE id = $loggedInUserId");
+
+// Use prepared statements to avoid SQL injection
+$stmt = $conn->prepare("SELECT divisi_id FROM mentors WHERE id = ?");
+$stmt->bind_param("i", $loggedInUserId);
+$stmt->execute();
+$result = $stmt->get_result();
 $loggedInUserDivision = $result->fetch_assoc()['divisi_id'];
+$stmt->close();
 
-// Ambil nama divisi dari divisi_id mentor yang login
-$divisionNameResult = $conn->query("SELECT nama_divisi FROM divisions WHERE id = $loggedInUserDivision");
-$divisionName = $divisionNameResult->fetch_assoc()['nama_divisi'];
-
-// Set default division ID
-$divisionId = $loggedInUserDivision; // Default to mentor's division
-
-
-
-// Fetch students based on mentor's division
-$studentsQuery = "
-    SELECT students.id, students.nama
+// Fetch students and materials based on mentor's division
+$stmt = $conn->prepare("
+    SELECT students.id AS student_id, students.nama AS student_name, materials.id AS material_id, materials.judul AS material_title, 
+    attendance.hadir AS is_present
     FROM students
-    WHERE students.divisi_id = $loggedInUserDivision
-";
-$studentsResult = $conn->query($studentsQuery);
-if (!$studentsResult) {
-    die("Error fetching students: " . $conn->error);
-}
+    LEFT JOIN materials ON materials.divisi_id = students.divisi_id
+    LEFT JOIN attendance ON attendance.student_id = students.id AND attendance.material_id = materials.id
+    WHERE students.divisi_id = ?
+");
+$stmt->bind_param("i", $loggedInUserDivision);
+$stmt->execute();
+$attendanceData = $stmt->get_result();
+$stmt->close();
 
-// Fetch materials based on mentor's division
-$materialsQuery = "
-    SELECT id, judul
-    FROM materials
-    WHERE divisi_id = $loggedInUserDivision
-";
-$materialsResult = $conn->query($materialsQuery);
-if (!$materialsResult) {
-    die("Error fetching materials: " . $conn->error);
+$students = [];
+$materials = [];
+while ($row = $attendanceData->fetch_assoc()) {
+    $students[$row['student_id']] = $row['student_name'];
+    $materials[$row['material_id']] = $row['material_title'];
+    $attendance[$row['student_id']][$row['material_id']] = $row['is_present'];
 }
 
 // Handle update attendance
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $attendanceData = $_POST['attendance'];
     
+    $stmt = $conn->prepare("INSERT INTO attendance (student_id, material_id, attendance_date, hadir) VALUES (?, ?, NOW(), ?) 
+        ON DUPLICATE KEY UPDATE attendance_date = NOW(), hadir = VALUES(hadir)");
     foreach ($attendanceData as $studentId => $materials) {
         foreach ($materials as $materialId => $status) {
-            if ($status == 'Hadir') {
-                // Insert or update attendance
-                $conn->query("INSERT INTO attendance (student_id, material_id, attendance_date, hadir) VALUES ($studentId, $materialId, NOW(), 1) 
-                ON DUPLICATE KEY UPDATE attendance_date = NOW(), hadir = 1");
-            } else {
-                // Update attendance to not present
-                $conn->query("INSERT INTO attendance (student_id, material_id, attendance_date, hadir) VALUES ($studentId, $materialId, NOW(), 0) 
-                ON DUPLICATE KEY UPDATE hadir = 0");
-            }
+            $hadir = $status == 'Hadir' ? 1 : 0;
+            $stmt->bind_param("iii", $studentId, $materialId, $hadir);
+            $stmt->execute();
         }
     }
+    $stmt->close();
     header("Location: manage_attendance.php");
     exit();
 }
+
+$divisionNameResult = $conn->query("SELECT nama_divisi FROM divisions WHERE id = $loggedInUserDivision");
+$divisionName = $divisionNameResult->fetch_assoc()['nama_divisi'];
+
 ?>
 
 <!DOCTYPE html>
@@ -97,43 +89,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <thead>
                         <tr>
                             <th>Siswa</th>
-                            <?php 
-                            $materialsResult->data_seek(0); // Reset the result pointer
-                            while ($material = $materialsResult->fetch_assoc()): ?>
-                                <th><?= $material['judul'] ?></th>
-                            <?php endwhile; ?>
+                            <?php foreach ($materials as $materialId => $materialTitle): ?>
+                                <th><?= htmlspecialchars($materialTitle) ?></th>
+                            <?php endforeach; ?>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
-                        $studentsResult->data_seek(0); // Reset the result pointer
-                        while ($student = $studentsResult->fetch_assoc()): ?>
+                        <?php foreach ($students as $studentId => $studentName): ?>
                             <tr>
-                                <td><?= $student['nama'] ?></td>
-                                <?php 
-                                $materialsResult->data_seek(0); // Reset the result pointer
-                                while ($material = $materialsResult->fetch_assoc()): ?>
+                                <td><?= htmlspecialchars($studentName) ?></td>
+                                <?php foreach ($materials as $materialId => $materialTitle): ?>
                                     <td>
-                                        <?php
-                                        // Check attendance status
-                                        $attendanceCheckQuery = "SELECT hadir FROM attendance WHERE student_id = {$student['id']} AND material_id = {$material['id']}";
-                                        $attendanceCheckResult = $conn->query($attendanceCheckQuery);
-                                        $isPresent = false;
-                                        if ($attendanceCheckResult && $attendanceCheckResult->num_rows > 0) {
-                                            $attendanceRow = $attendanceCheckResult->fetch_assoc();
-                                            $isPresent = $attendanceRow['hadir'] == 1;
-                                        }
-                                        ?>
-                                        <?php if ($isPresent): ?>
-                                            Hadir
-                                        <?php else: ?>
-                                            Tidak Hadir
-                                        <?php endif; ?>
-                                        <input type="checkbox" name="attendance[<?= $student['id'] ?>][<?= $material['id'] ?>]" value="Hadir" <?= $isPresent ? 'checked' : '' ?>>
+                                        <?php $isPresent = $attendance[$studentId][$materialId] ?? 0; ?>
+                                        <input type="checkbox" name="attendance[<?= $studentId ?>][<?= $materialId ?>]" value="Hadir" <?= $isPresent ? 'checked' : '' ?>>
+                                        <?= $isPresent ? 'Hadir' : 'Tidak Hadir' ?>
                                     </td>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
                 <button type="submit">Update Presensi</button>

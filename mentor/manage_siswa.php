@@ -2,6 +2,8 @@
 session_start();
 include '../db.php';
 
+
+
 // Ambil `divisi_id` dari mentor yang login
 $loggedInUserId = $_SESSION['user_id'];
 $result = $conn->query("SELECT divisi_id FROM mentors WHERE id = $loggedInUserId");
